@@ -2,6 +2,8 @@
 #Feel free to modify any flags you want
 #Visit http://visualgdb.com/makefiles for more details
 
+SRCPATH := $(PWD)/../src/
+
 # Set this variable to the location of the Steamworks SDK
 ifeq ($(STEAMWORKS_SDK),)
     STEAMWORKS_SDK := $(PWD)/..
