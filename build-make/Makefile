@@ -131,7 +131,7 @@ all: $(BINARYDIR)/$(TARGETNAME)
 endif
 
 ifeq ($(TARGETTYPE),APP)
-$(BINARYDIR)/$(TARGETNAME): $(all_objs) $(EXTERNAL_LIBS) $(BINARYDIR)/$(STEAM_API) $(BINARYDIR)/SteamworksExample.sh $(BINARYDIR)/DejaVuSans.ttf
+$(BINARYDIR)/$(TARGETNAME): $(all_objs) $(EXTERNAL_LIBS) $(BINARYDIR)/$(STEAM_API) $(BINARYDIR)/SteamworksExample.sh $(BINARYDIR)/DejaVuSans.ttf $(BINARYDIR)/steam_appid.txt
 	$(LD) -o $@ $(LDFLAGS) $(START_GROUP) $(all_objs) $(LIBRARY_LDFLAGS) $(END_GROUP)
 	@echo "You can start the game by running $(BINARYDIR)/SteamworksExample.sh"
 endif
@@ -167,6 +167,9 @@ $(BINARYDIR)/SteamworksExample.sh: $(SRCPATH)/SteamworksExample.sh
 	chmod +x $@
 
 $(BINARYDIR)/DejaVuSans.ttf: $(SRCPATH)/DejaVuSans.ttf
+	cp -v $< $@
+
+$(BINARYDIR)/steam_appid.txt: $(SRCPATH)/steam_appid.txt
 	cp -v $< $@
 
 #VisualGDB: FileSpecificTemplates		#<--- VisualGDB will use the following lines to define rules for source files in subdirectories
