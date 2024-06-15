@@ -1,0 +1,7 @@
+Build:
+meson --reconfigure build
+meson compile -C build
+
+Run:
+cd build
+./example
