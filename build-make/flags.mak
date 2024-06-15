@@ -6,13 +6,13 @@ SRCPATH := $(PWD)/../src/
 
 # Set this variable to the location of the Steamworks SDK
 ifeq ($(STEAMWORKS_SDK),)
-    STEAMWORKS_SDK := $(PWD)/..
+    STEAMWORKS_SDK := $(PWD)/../steamworkslib/
 endif
 STEAM_API := libsteam_api.so
 
 # Uncomment this line to use the Steam Linux Runtime SDK
 # If you do this you should run the SDK setup.sh to download updates
-USE_STEAM_RUNTIME=true
+USE_STEAM_RUNTIME=false
 ifeq ($(USE_STEAM_RUNTIME),true)
     ifeq ($(STEAM_RUNTIME_SDK),)
         STEAM_RUNTIME_SDK := $(STEAMWORKS_SDK)/tools/linux
@@ -35,11 +35,11 @@ steam-runtime-setup:
     endif
 endif # USE_STEAM_RUNTIME
 
-CC := $(STEAM_TOOLS_BIN)gcc
-CXX := $(STEAM_TOOLS_BIN)g++
+CC ?= $(STEAM_TOOLS_BIN)gcc
+CXX ?= $(STEAM_TOOLS_BIN)g++
 LD := $(CXX)
-AR := $(STEAM_TOOLS_BIN)ar
-OBJCOPY := $(STEAM_TOOLS_BIN)objcopy
+AR ?= $(STEAM_TOOLS_BIN)ar
+OBJCOPY ?= $(STEAM_TOOLS_BIN)objcopy
 CP := cp
 SDL_CONFIG := $(STEAM_TOOLS_BIN)sdl2-config
 
