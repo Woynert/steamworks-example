@@ -15,9 +15,9 @@ typedef unsigned char byte;
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_opengl.h>
-#include <SDL3/SDL_ttf.h>
+#include <SDL.h>
+#include <SDL_opengl.h>
+#include <SDL_ttf.h>
 
 #include <string>
 #include <set>

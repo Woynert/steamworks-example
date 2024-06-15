@@ -931,7 +931,7 @@ bool CGameEngineGL::BDrawString( HGAMEFONT hFont, RECT rect, DWORD dwColor, DWOR
 		m_MapTextures[ hTexture ].m_uWidth = surface->w;
 		m_MapTextures[ hTexture ].m_uHeight = surface->h;
 
-		SDL_DestroySurface( surface );
+		SDL_FreeSurface( surface );
 
 		m_MapStrings[ std::string(szFontPrefix) + std::string(pchText) ] = hTexture;
 	}
