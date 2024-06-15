@@ -56,8 +56,11 @@ INCLUDE_DIRS := $(STEAMWORKS_SDK)/public
 LIBRARY_DIRS := $(STEAMWORKS_SDK)/public/steam/lib/linux64 $(STEAMWORKS_SDK)/redistributable_bin/linux64
 LIBRARY_NAMES := steam_api
 
-CFLAGS := -g -DPOSIX -DSDL $(shell STEAM_RUNTIME_ROOT=$(STEAM_RUNTIME_ROOT) $(SDL_CONFIG) --cflags) -DGNUC
-DEBUG_CFLAGS := -O0
+CFLAGS := -DPOSIX -DSDL \
+        $(shell pkg-config --cflags sdl2) \
+        $(shell pkg-config --cflags SDL2_ttf)
+
+DEBUG_CFLAGS := -g -O0
 RELEASE_CFLAGS := -O3
 
 CXXFLAGS := $(CFLAGS)
@@ -66,7 +69,12 @@ RELEASE_CXXFLAGS := $(RELEASE_CFLAGS)
 
 MACOS_FRAMEWORKS := 
 
-LDFLAGS := $(shell STEAM_RUNTIME_ROOT=$(STEAM_RUNTIME_ROOT) $(SDL_CONFIG) --libs) -lSDL3_ttf -lfreetype -lz -lGL -lopenal
+LDFLAGS := \
+           $(shell pkg-config --libs sdl2) \
+           $(shell pkg-config --libs SDL2_ttf) \
+           $(shell pkg-config --libs glew) \
+           $(shell pkg-config --libs openal)
+
 DEBUG_LDFLAGS := 
 RELEASE_LDGLAGS :=
 
