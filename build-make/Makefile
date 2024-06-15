@@ -158,7 +158,7 @@ endif
 $(BINARYDIR):
 	mkdir $(BINARYDIR)
 
-$(BINARYDIR)/$(STEAM_API): $(STEAMWORKS_SDK)/redistributable_bin/linux32/$(STEAM_API)
+$(BINARYDIR)/$(STEAM_API): $(STEAMWORKS_SDK)/redistributable_bin/linux64/$(STEAM_API)
 	cp -v $< $@
 	chmod +x $@
 

@@ -51,7 +51,7 @@ RELEASE_MACROS := NDEBUG RELEASE
 MCUFLAGS := 
 
 INCLUDE_DIRS := $(STEAMWORKS_SDK)/public
-LIBRARY_DIRS := $(STEAMWORKS_SDK)/public/steam/lib/linux32 $(STEAMWORKS_SDK)/redistributable_bin/linux32
+LIBRARY_DIRS := $(STEAMWORKS_SDK)/public/steam/lib/linux64 $(STEAMWORKS_SDK)/redistributable_bin/linux64
 LIBRARY_NAMES := steam_api
 
 CFLAGS := -g -DPOSIX -DSDL $(shell STEAM_RUNTIME_ROOT=$(STEAM_RUNTIME_ROOT) $(SDL_CONFIG) --cflags) -DGNUC
