@@ -1,0 +1,8 @@
+/**
+!/.gitignore
+!/meson.build
+!/*.wrap
+!/wrapsdl
+!/wrapsdl/**
+!/wrapsdlttf
+!/wrapsdlttf/**
