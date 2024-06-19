@@ -28,3 +28,11 @@ compile:
 
 conanrun:
 	. ./deps/conanrun.sh; cd build && ./example
+
+# Debugging
+
+rebuildSdl:
+	./conan-recipes/update-recipes.sh
+	$(MAKE) conanexportnix
+	$(MAKE) conaninstallnix
+	conan install . --output-folder=deps --build=sdl/*@customwoy -pr:a=conan-profiles/nixprofile
