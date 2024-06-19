@@ -18,17 +18,26 @@ conan_last = conan.overrideAttrs(final: prev: {
   ];
 });
 
+pkg_config_wrap = writeShellScriptBin "pkg-config" ''
+  #!/usr/bin/env sh
+  ${pkg-config-unwrapped}/bin/pkg-config $@ 2> /dev/null
+  err=$?
+  [ $err -ne 0 ] && exec ${pkg-config}/bin/pkg-config $@
+  exit $err
+'';
+
 in
 llvmPackages.stdenv.mkDerivation {
 	name = "conan-env";
 	buildInputs = [
         # build tools
         
+		pkg_config_wrap # first: use wrapper
+		pkg-config # second: set env vars
         cmake # for building conan deps
         meson
         ninja
         conan_last
-		pkg-config
 
 		bison
 
