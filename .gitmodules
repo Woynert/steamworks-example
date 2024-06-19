@@ -1,0 +1,3 @@
+[submodule "build-conan/conan-center-index"]
+	path = build-conan/conan-center-index
+	url = https://github.com/Woynert/conan-center-index
