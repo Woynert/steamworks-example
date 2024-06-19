@@ -5,10 +5,10 @@ llvmPackages.stdenv.mkDerivation {
 	name = "clang-build-env";
 	buildInputs = [
         # tools
+        pkg-config
         busybox
         git
         lf
-        pkg-config
         # libs
         glew # Brings OpenGL, Makes OpenGL functions easily accesible
         openal

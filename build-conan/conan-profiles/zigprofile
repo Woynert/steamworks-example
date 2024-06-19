@@ -1,0 +1,25 @@
+[settings]
+arch=x86_64
+build_type=Release
+compiler=gcc
+compiler.cppstd=gnu17
+compiler.libcxx=libstdc++11
+compiler.version=13
+os=Linux
+[buildenv]
+CC=zigcc
+CXX=zigcxx
+LD=zigcc
+# xkbcommon/*:CC=clang
+# xkbcommon/*:CXX=clang++
+# xkbcommon/*:LD=clang
+
+# workaround for bug xkbcommon using system libs
+# [platform_requires]
+# libglvnd/1.7.0
+# xkbcommon/1.6.0
+# [replace_requires]
+# xkbcommon/1.6.0: xkbcommon/1.7.0
+
+[platform_tool_requires]
+libtool/2.4.7
