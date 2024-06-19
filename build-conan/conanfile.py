@@ -8,7 +8,7 @@ class CompressorRecipe(ConanFile):
     def requirements(self):
         # secondary deps:
         self.requires("xkbcommon/1.6.0")
-        self.requires("libglvnd/1.7.0")
+        self.requires("libglvnd/system@customwoy") # not available in conan center, use custom recipe
         self.requires("xorg/system")
 
         self.requires("sdl/2.30.3", override=True) # override for sdlttf
@@ -44,3 +44,5 @@ class CompressorRecipe(ConanFile):
 #   * profile overrides libBar with system version
 #   * Error: libTee can't find libBar because a bug when using system override?
 # * PR to conan index: expat requires cmake
+# * PR to conan index: brotli requires cmake
+# * PR to conan index: libglvnd requires a system version since it doesn't work in Ubuntu

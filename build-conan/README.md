@@ -2,10 +2,18 @@
 
 ## Ubuntu or derivatives build
 
+setup:
+
+```
+apt install gcc g++ make cmake pipx
+pipx install meson conan
+```
+
 build:
 
 ```
-make conaninstall
+make conanexport
+conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
 make mesonsetup
 make compile
 ```
