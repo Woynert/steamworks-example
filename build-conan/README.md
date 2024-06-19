@@ -32,7 +32,7 @@ make compile
 run:
 
 ```
-steam-run ./build/example
+cd build && steam-run ./example
 or
 LD_LIBRARY_PATH=/nix/store/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-pulseaudio/lib make conanrun
 ```

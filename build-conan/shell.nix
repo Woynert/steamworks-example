@@ -109,13 +109,7 @@ llvmPackages.stdenv.mkDerivation {
 		source ${git}/share/git/contrib/completion/git-prompt.sh
 		PS1='\[\033[0;33m\]nix:\w\[\033[0m\] $(__git_ps1 %s)\n$ '
 
-        # SDL2 from Conan needs libpulse.so in standard location
+        # SDL2 from Conan needs libpulse.so
         echo 'LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pulseaudio}/lib'
-        #export LD_LIBRARY_PATH
-
-        # only libGL needs to be overwritten to work with nixpkgs-unstable
-		echo "source deps/conanrun.sh"
-		echo 'LD_LIBRARY_PATH=${libGL}/lib/:$LD_LIBRARY_PATH ./build/example'
-        #echo ${pulseaudio}
 	'';
 }
