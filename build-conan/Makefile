@@ -36,3 +36,6 @@ rebuildSdl:
 	$(MAKE) conanexportnix
 	$(MAKE) conaninstallnix
 	conan install . --output-folder=deps --build=sdl/*@customwoy -pr:a=conan-profiles/nixprofile
+
+conanGraphNix:
+	conan graph info . --format=html -pr:a=conan-profiles/nixprofile > graph.html
