@@ -1,0 +1,27 @@
+[settings]
+arch=x86_64
+build_type=Release
+compiler=clang
+compiler.cppstd=gnu17
+compiler.libcxx=libstdc++11
+compiler.version=16
+os=Linux
+
+[replace_requires]
+libglvnd/*: libglvnd/system@customwoy
+xorg/*: xorg/*@customwoy
+sdl/*: sdl/*@customwoy
+
+[replace_tool_requires]
+pkgconf/*: pkgconf/2.1.0
+ninja/*: ninja/1.11.1
+bison/*: bison/3.8.2
+cmake/*: cmake/3.27.7
+autoconf/*: autoconf/2.71
+
+[platform_tool_requires]
+pkgconf/2.1.0
+ninja/1.11.1
+bison/3.8.2
+cmake/3.27.7
+autoconf/2.71
