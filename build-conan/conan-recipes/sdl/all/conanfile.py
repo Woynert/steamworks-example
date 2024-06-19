@@ -9,8 +9,7 @@ from conan.tools.env import Environment
 
 import os
 
-# required_conan_version = ">=1.55.0"
-required_conan_version = ">=2.0.0"
+required_conan_version = ">=1.55.0"
 
 
 class SDLConan(ConanFile):
@@ -159,7 +158,7 @@ class SDLConan(ConanFile):
                 self.requires("egl/system")
             if self.options.libunwind:
                 self.requires("libunwind/1.8.0")
-            if self.options.vulkan:
+            if self.options.x11:
                 self.requires("xorg/system")
 
     def validate(self):
@@ -233,8 +232,8 @@ class SDLConan(ConanFile):
             }.get(str(self.settings.arch), str(self.settings.arch))
         cmake_required_includes = []  # List of directories used by CheckIncludeFile (https://cmake.org/cmake/help/latest/module/CheckIncludeFile.html)
         cmake_extra_ldflags = []
-        cmake_extra_libs = []
         cmake_extra_cflags = []
+        cmake_extra_libs = []
 
         if self.settings.os != "Windows" and not self.options.shared:
             tc.variables["SDL_STATIC_PIC"] = self.options.fPIC
@@ -263,38 +262,15 @@ class SDLConan(ConanFile):
                 tc.variables["SDL_ESD_SHARED"] = self.options["esd"].shared
             tc.variables["SDL_PULSEAUDIO"] = self.options.pulse
             if self.options.pulse:
-                # tc.variables["SDL_PULSEAUDIO_SHARED"] = self.dependencies["pulseaudio"].options.shared
-                tc.variables["SDL_PULSEAUDIO_SHARED"] = True
+                tc.variables["SDL_PULSEAUDIO_SHARED"] = self.dependencies["pulseaudio"].options.shared
                 for component in self.dependencies["pulseaudio"].cpp_info.components:
                     if self.dependencies["pulseaudio"].cpp_info.components[component].libs:
                         cmake_extra_libs += self.dependencies["pulseaudio"].cpp_info.components[component].libs
                         cmake_extra_ldflags += ["-L{}".format(it) for it in self.dependencies["pulseaudio"].cpp_info.components[component].libdirs]
                 cmake_extra_ldflags += ["-lxcb", "-lrt"]  # FIXME: SDL sources doesn't take into account transitive dependencies
-            if self.options.vulkan:
-                # cmake_extra_ldflags += ["-lxcb", "-lX11", "klfsdhfkasd"]
-                # cmake_extra_ldflags += ["-L{}".format(it) for it in self.dependencies["xorg"].cpp_info.libdirs]
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print("======================")
-                print(self.dependencies["xorg"].cpp_info.components["xcb"].libs)
-                print(self.dependencies["xorg"].cpp_info.components["xcb"].includedirs)
-                # print(self.dependencies["xorg"].cpp_info.components["xcb"].includedir)
-                # print(self.dependencies["xorg"].cpp_info.components["xcb"].get_property("pkg_config_custom_content"))
-                # cmake_extra_cflags += self.dependencies["xorg"].cpp_info.components["xcb"].includedirs
-                # cmake_extra_cflags += self.dependencies["xorg"].cpp_info.components["xcb"].includedir
+            if self.options.x11:
                 for component in ["x11", "xcb", "xi", "xcursor", "xfixes", "xrender", "xext", "xrandr", "xscrnsaver"]:
                     cmake_extra_cflags += ["-I{}".format(it) for it in self.dependencies["xorg"].cpp_info.components[component].includedirs]
-                # cmake_extra_cflags += ["-I{}".format(it) for it in self.dependencies["xorg"].cpp_info.components["x11-xcb"].includedirs]
-                # cmake_extra_libs += self.dependencies["xorg"].cpp_info.components["xcb"].libs
-                # cmake_extra_libs += ["asdksjafsgsdl"]
-                # cmake_extra_ldflags += ["-L{}".format(it) for it in self.dependencies["xorg"].cpp_info.components["xcb"].libdirs]
             tc.variables["SDL_SNDIO"] = self.options.sndio
             if self.options.sndio:
                 tc.variables["SDL_SNDIO_SHARED"] = self.options["sndio"].shared
@@ -354,7 +330,6 @@ class SDLConan(ConanFile):
         tc.variables["CMAKE_REQUIRED_INCLUDES"] = ";".join(cmake_required_includes)
         cmake_extra_cflags += ["-I{}".format(path) for _, dep in self.dependencies.items() for path in dep.cpp_info.includedirs]
         tc.variables["EXTRA_CFLAGS"] = ";".join(cmake_extra_cflags).replace(os.sep, '/')
-        # cmake_extra_libs += ["-asdksjafsgsdl"]
         tc.variables["EXTRA_LIBS"] = ";".join(cmake_extra_libs)
         tc.cache_variables["CMAKE_POLICY_DEFAULT_CMP0077"] = "NEW"
         tc.generate()
@@ -437,9 +412,7 @@ class SDLConan(ConanFile):
                 self.cpp_info.components["libsdl2"].requires.append("wayland::wayland")
                 self.cpp_info.components["libsdl2"].requires.append("xkbcommon::xkbcommon")
                 self.cpp_info.components["libsdl2"].requires.append("egl::egl")
-            # TODO: is not because of vulkan but because of X11
-            if self.options.vulkan:
-                # self.cpp_info.components["libsdl2"].requires.append(["xorg::xorg"])
+            if self.options.x11:
                 for component in ["xorg::{}".format(it) for it in ["x11", "xcb", "xi", "xcursor", "xfixes", "xrender", "xext", "xrandr", "xscrnsaver"]]:
                     self.cpp_info.components["libsdl2"].requires.append(component)
             if self.options.libunwind:
@@ -470,9 +443,6 @@ class SDLConan(ConanFile):
             if self.options.opengles:
                 self.cpp_info.components["libsdl2"].system_libs.extend(["GLESv1_CM", "GLESv2"])
                 self.cpp_info.components["libsdl2"].system_libs.append("OpenSLES")
-        # TODO: only if vulkan is enabled
-        # self.cpp_info.components["libsdl2"].requires.append("xorg::x11")
-        # self.cpp_info.components["libsdl2"].requires.append("xorg::xcb")
 
         # SDL2main
         if self.options.sdl2main:
