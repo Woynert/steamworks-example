@@ -61,13 +61,13 @@ steamworks_dep = declare_dependency(
   ],
   include_directories : include_directories(join_paths(sdk_relative, 'public')))
 
-fs.copyfile(join_paths(sdk_path, 'redistributable_bin/linux64/libsteam_api.so'), 'libsteam_api.so')
-fs.copyfile(join_paths(sdk_path, 'public/steam/lib/linux64/libsdkencryptedappticket.so'), 'libsdkencryptedappticket.so')
+install_data(join_paths(sdk_path, 'redistributable_bin/linux64/libsteam_api.so'), install_dir: get_option('bindir'))
+install_data(join_paths(sdk_path, 'public/steam/lib/linux64/libsdkencryptedappticket.so'), install_dir: get_option('bindir'))
 
 # assets
 
-fs.copyfile(join_paths(src_path, 'DejaVuSans.ttf'), 'DejaVuSans.ttf')
-fs.copyfile(join_paths(src_path, 'steam_appid.txt'), 'steam_appid.txt')
+install_data(join_paths(src_path, 'DejaVuSans.ttf'), install_dir: get_option('bindir'))
+install_data(join_paths(src_path, 'steam_appid.txt'), install_dir: get_option('bindir'))
 
 executable(
   'example', source_files,
@@ -88,4 +88,6 @@ executable(
     '-fno-sanitize=all', 
   ],
   build_rpath: '$ORIGIN',
+  install_rpath: '$ORIGIN',
+  install: true,
 )
