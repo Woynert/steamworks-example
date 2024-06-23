@@ -27,3 +27,31 @@ jobs:
       - name: bump version
         id: bump
         run: echo "tag=$(./usr/local/bin/convco version --bump)" | tee "$GITHUB_OUTPUT"
+
+  build-linux:
+    runs-on: 'ubuntu-20.04'
+    needs: tagging
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: setup tools
+        run: |
+          apt install ninja-build
+          pipx install meson && pipx install conan
+
+      - name: setup conan
+        run: |
+          conan profile detect
+          make conanexport
+          conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+
+      - name: build
+        run: |
+          make mesonsetup
+          make compile
+
+
+
