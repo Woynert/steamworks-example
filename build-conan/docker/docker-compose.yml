@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  builder:
+    build: '.'
+    volumes:
+      - './conan-cache:/root/.conan2'
+      - '../../:/src'
+    working_dir: '/src/build-conan'
+    command:
+      - '/bin/sh'
+      - '-c'
+      - |
+        conan profile detect
+        make conanexport
+        conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install
+        make mesonsetup
+        make compile
