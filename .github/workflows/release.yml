@@ -44,7 +44,7 @@ jobs:
       - name: .conan cache
         uses: actions/cache@v4
         with:
-          path: "$HOME/.conan2"
+          path: "~/.conan2"
           key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
 
       - name: setup tools
@@ -62,7 +62,7 @@ jobs:
       - name: build
         run: |
           make mesonsetup
-          make compile
+          make install
 
       - name: package it
         run: make linux-package
@@ -88,4 +88,4 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ needs.tagging.outputs.tag }}"
-          gh release create "$TAG" -t "Release $TAG" ./linux.tar.gz
+          gh release create "$TAG" -t "Release $TAG" ./linux-package/linux.tar.gz
