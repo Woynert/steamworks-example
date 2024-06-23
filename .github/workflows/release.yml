@@ -55,7 +55,7 @@ jobs:
 
       - name: setup conan
         run: |
-          conan profile detect
+          conan profile detect -f
           make conanexport
           conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
 
