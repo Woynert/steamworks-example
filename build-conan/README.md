@@ -2,10 +2,24 @@
 
 ## Ubuntu or derivatives build
 
-build:
+setup:
 
 ```
-make conaninstall
+apt install gcc g++ make cmake pipx python3.8-venv pkg-config ninja-build
+pipx install meson && pipx install conan
+```
+
+setup conan:
+
+```
+conan profile detect
+make conanexport
+conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+```
+
+compile:
+
+```
 make mesonsetup
 make compile
 ```
@@ -23,7 +37,7 @@ Note that this isn't 100% reproducible because of Conan. For a more reproducible
 build:
 
 ```
-make conanexportnix
+make conanexport
 make conaninstallnix
 make mesonsetup
 make compile
@@ -35,6 +49,24 @@ run:
 cd build && steam-run ./example
 or
 LD_LIBRARY_PATH=/nix/store/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA-pulseaudio/lib make conanrun
+```
+
+## Docker / Podman build (glibc 2.31)
+
+build:
+
+```
+cd docker
+docker compose up
+```
+
+run:
+
+```
+cd build
+./example
+or
+LD_LIBRARY_PATH=/path/to/conan-build/deps/libs:$LD_LIBRARY_PATH ./example
 ```
 
 # Conan dependencies info

@@ -3,7 +3,7 @@ default:
 clean:
 	\rm -rf deps build
 
-conanexportnix:
+conanexport:
 	# export custom recipes
 	conan export conan-recipes/libglvnd/system --version system --user customwoy
 	conan export conan-recipes/xorg/all --version system --user customwoy
