@@ -41,6 +41,12 @@ jobs:
           filter: tree:0
           fetch-depth: 0
 
+      - name: .conan cache
+        uses: actions/cache@v1
+        with:
+          path: "$HOME/.conan2"
+          key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
+
       - name: setup tools
         run: |
           sudo apt-get -yq install ninja-build
