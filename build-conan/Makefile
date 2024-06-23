@@ -37,7 +37,7 @@ linux-package:
 	TMPDIR=$$(mktemp -d) &&\
 	PROROOT=$$PWD &&\
 	./patchElfShared.sh &&\
-	cp build-release/bin/* "$$TMPDIR" &&\
+	cp build/bin/* "$$TMPDIR" &&\
 	cp -av deps/libs/* "$$TMPDIR" &&\
 	cd "$$TMPDIR" && tar -czvf "$$PROROOT/linux.tar.gz" * &&\
 	rm -r "$$TMPDIR"
