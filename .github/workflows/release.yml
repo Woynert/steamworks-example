@@ -1,0 +1,95 @@
+name: release
+on:
+  workflow_dispatch:
+
+jobs:
+  tagging:
+    runs-on: 'ubuntu-20.04'
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
+    env:
+      CONVCO_URL: 'https://github.com/convco/convco/releases/download/v0.5.1/convco-deb.zip'
+      CONVCO_SHA: '8d234b7199c39047d1d7bd0013ec9236e5d6c04427acf32619270804968eaa95'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+          fetch-tags: true
+      - name: get convco
+        run: curl --location --output convco.zip $CONVCO_URL
+      - name: checksum
+        run: echo "$CONVCO_SHA convco.zip" | sha256sum --check
+      - name: extract
+        run: |
+          unzip convco.zip
+          dpkg-deb -x convco_0.5.1-1_amd64.deb .
+      - name: bump version
+        id: bump
+        run: echo "tag=$(./usr/local/bin/convco version --bump)" | tee "$GITHUB_OUTPUT"
+
+  build-linux:
+    runs-on: 'ubuntu-20.04'
+    needs: tagging
+    defaults:
+      run:
+        working-directory: './build-conan'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: .conan cache
+        uses: actions/cache@v4
+        with:
+          path: "~/.conan2"
+          key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
+
+      - name: setup tools
+        run: |
+          sudo apt-get -yq install ninja-build
+          pipx install meson && pipx install conan
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: setup conan
+        run: |
+          conan profile detect -f
+          make conanexport
+          conan install . --output-folder=deps --build=missing -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+
+      - name: build
+        run: |
+          make mesonsetup
+          make install
+
+      - name: package it
+        run: make linux-package
+
+      - name: upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-package
+          path: "build-conan/linux.tar.gz"
+          retention-days: 1
+
+  release:
+    runs-on: 'ubuntu-20.04'
+    permissions:
+      contents: write
+    needs:
+      - tagging
+      - build-linux
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+      - name: create github release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.tagging.outputs.tag }}
+        run: gh release create "$TAG" -t "Release $TAG" ./linux-package/linux.tar.gz
