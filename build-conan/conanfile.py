@@ -1,4 +1,6 @@
 from conan import ConanFile
+from conan.tools.files import copy
+
 
 
 class CompressorRecipe(ConanFile):
@@ -6,18 +8,18 @@ class CompressorRecipe(ConanFile):
     generators = "MesonToolchain", "PkgConfigDeps"
     
     def requirements(self):
-        # secondary deps:
-        self.requires("xkbcommon/1.6.0")
-        self.requires("libglvnd/system@customwoy") # not available in conan center, use custom recipe
-        self.requires("xorg/system")
-
+        # main
         self.requires("sdl/2.30.3", override=True) # override for sdlttf
         self.requires("sdl_ttf/2.22.0")
         self.requires("glew/2.2.0")
         self.requires("openal-soft/1.23.1")
 
+        # secondary
+        self.requires("libglvnd/system@customwoy", override=True) # from glew: use custom recipe for system version
+        self.requires("xorg/system") # from sdl
+        self.requires("xkbcommon/1.6.0") # from sdl
+
     def configure(self):
-        # TODO: try to disable pulse/alsa in sdl
         self.options["sdl"].alsa = False
         self.options["sdl"].pulse = False
 
@@ -28,6 +30,12 @@ class CompressorRecipe(ConanFile):
 
         self.options["xkbcommon"].shared = True
         self.options["xkbcommon"].with_wayland = False
+
+    def generate(self):
+        # gather all shared libs for release
+        deps_to_copy = ["sdl", "sdl_ttf", "glew", "xkbcommon"]
+        for dep in deps_to_copy:
+            copy(self, "*.so*", src=self.dependencies[dep].cpp_info.libdir, dst="libs")
 
 # NOTES:
 # * when a dep is marked as override, but no other dep uses it, it gets discarded
