@@ -1,3 +1,4 @@
+.PHONY: *
 default:
 
 clean:
@@ -28,6 +29,15 @@ compile:
 
 conanrun:
 	. ./deps/conanrun.sh; cd build && ./example
+
+linux-package:
+	TMPDIR=$$(mktemp -d) &&\
+	PROROOT=$$PWD &&\
+	./patchElfShared.sh &&\
+	cp build-release/bin/* "$$TMPDIR" &&\
+	cp -av deps/libs/* "$$TMPDIR" &&\
+	cd "$$TMPDIR" && tar -czvf "$$PROROOT/example.tar.gz" * &&\
+	rm -r "$$TMPDIR"
 
 # Debugging
 
