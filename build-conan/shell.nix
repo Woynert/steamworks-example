@@ -38,7 +38,6 @@ llvmPackages.stdenv.mkDerivation {
         meson
         ninja
         conan_last
-
 		bison
 
         # extra tools (for convenience)
@@ -47,7 +46,7 @@ llvmPackages.stdenv.mkDerivation {
 		busybox
 		git
         patchelf
-        pax-utils
+        pax-utils # lddtree
         libtool # conan replace: compile openal-soft
 		stdenv.cc.cc.lib # libstdc++.so.6 ??
 		perl
