@@ -22,10 +22,13 @@ conaninstallzig:
 
 mesonsetup:
 	# consume conan dependencies
-	meson setup --reconfigure --native-file deps/conan_meson_native.ini build
+	meson setup --reconfigure --prefix=$(PWD)/build --native-file deps/conan_meson_native.ini build
 
 compile:
 	meson compile -C build
+
+install:
+	meson install -C build
 
 conanrun:
 	. ./deps/conanrun.sh; cd build && ./example
@@ -36,7 +39,7 @@ linux-package:
 	./patchElfShared.sh &&\
 	cp build-release/bin/* "$$TMPDIR" &&\
 	cp -av deps/libs/* "$$TMPDIR" &&\
-	cd "$$TMPDIR" && tar -czvf "$$PROROOT/example.tar.gz" * &&\
+	cd "$$TMPDIR" && tar -czvf "$$PROROOT/linux.tar.gz" * &&\
 	rm -r "$$TMPDIR"
 
 # Debugging
