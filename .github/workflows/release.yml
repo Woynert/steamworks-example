@@ -76,6 +76,8 @@ jobs:
 
   release:
     runs-on: 'ubuntu-20.04'
+    permissions:
+      contents: write
     needs:
       - tagging
       - build-linux
