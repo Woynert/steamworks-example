@@ -1,0 +1,28 @@
+name: release
+on:
+  workflow_dispatch:
+
+jobs:
+  tagging:
+    runs-on: 'ubuntu-20.04'
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
+    env:
+      CONVCO_URL: 'https://github.com/convco/convco/releases/download/v0.5.1/convco-deb.zip'
+      CONVCO_SHA: '8d234b7199c39047d1d7bd0013ec9236e5d6c04427acf32619270804968eaa95'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+          fetch-tags: true
+      - name: get convco
+        run: curl --location --output convco.zip $CONVCO_URL
+      - name: checksum
+        run: echo "$CONVCO_SHA convco.zip" | sha256sum --check
+      - name: extract
+        run: |
+          unzip convco.zip
+          dpkg-deb -x convco_0.5.1-1_amd64.deb .
+      - id: bump
+        run: echo "tag=$(./usr/local/bin/convco version --bump)" | tee "$GITHUB_OUTPUT"
