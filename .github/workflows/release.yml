@@ -31,6 +31,10 @@ jobs:
   build-linux:
     runs-on: 'ubuntu-20.04'
     needs: tagging
+    defaults:
+      run:
+        working-directory: './build-conan'
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,8 +43,9 @@ jobs:
 
       - name: setup tools
         run: |
-          apt install ninja-build
+          sudo apt-get -yq install ninja-build
           pipx install meson && pipx install conan
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: setup conan
         run: |
