@@ -52,6 +52,7 @@ llvmPackages.stdenv.mkDerivation {
 		perl
         strace
 		steamPackages.steam-fhsenv-without-steam.run
+        rsync
 
         # === SDL2 build deps ===
 
