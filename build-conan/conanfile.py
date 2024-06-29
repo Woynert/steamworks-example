@@ -23,6 +23,7 @@ class CompressorRecipe(ConanFile):
         self.options["sdl"].shared = True
         self.options["sdl_ttf"].shared = True
         self.options["glew"].shared = True
+        # self.options["glew"].with_egl = True
 
         if self.settings.os == "Linux":
             self.options["sdl"].alsa = False
@@ -38,21 +39,3 @@ class CompressorRecipe(ConanFile):
             lib_pattern = "*.so*"
             for dep in deps_to_copy:
                 copy(self, lib_pattern, src=self.dependencies[dep].cpp_info.libdir, dst="libs")
-
-# NOTES:
-# * when a dep is marked as override, but no other dep uses it, it gets discarded
-# * xkbcommon could be skipped since supposedly should already be available on Ubuntu
-# * could use system cmake
-# * make minimum reproduction project:
-#   * libFoo depends on libBar
-#   * profile overrides libBar with system version
-#   * libTee depends on libFoo
-#   * Error: libTee can't find libBar because a bug when using system override?
-# * make minimum reproduction project (updated):
-#   * libFoo depends on libBar
-#   * libFoo uses self.cpp_info["compFoo"].requires.append("libBar::compBar")
-#   * profile overrides libBar with system version
-#   * Error: libTee can't find libBar because a bug when using system override?
-# * PR to conan index: expat requires cmake
-# * PR to conan index: brotli requires cmake
-# * PR to conan index: libglvnd requires a system version since it doesn't work in Ubuntu
