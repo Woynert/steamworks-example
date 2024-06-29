@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt-get -yq install ninja-build
           pipx install meson && pipx install conan
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: setup conan
         run: |
@@ -67,26 +67,26 @@ jobs:
           path: '~/.conan2'
           key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
 
-      - name: setup scoop tools
+      - name: install scoop
         shell: pwsh
+        run: iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+      - name: setup scoop tools
         run: |
-          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
-          scoop install pkg-config make
-
+          "$HOME/scoop/shims/scoop" install pkg-config make
+          echo 'C:\\Users\runneradmin\scoop\shims' >> "$GITHUB_PATH"
       - name: setup pipx tools
-        run: |
-          for p in meson ninja conan cmake; do pipx install $p; done
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        run: for p in meson ninja conan; do pipx install $p; done
 
-      # NOTE: get path with vswhere.exe
       - name: setup conan
         run: |
+          echo $PATH
           conan profile detect -f
           make conaninstall
 
       - name: build
         run: |
-          make mesonsetup
+          echo $PATH
+          make mesonsetupvs
           make install
 
       - name: package it

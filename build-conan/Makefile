@@ -42,6 +42,9 @@ conaninstallnix:
 conaninstallzig:
 	conan install . --output-folder=deps --build=missing -pr:a=conan-profiles/zigprofile -vvv
 
+mesonsetupvs:
+	meson setup --reconfigure --prefix=$(CURDIR)/build --native-file deps/conan_meson_native.ini build --vsenv
+
 # Debugging
 
 conanrun:
