@@ -338,7 +338,7 @@ bool CGameEngineGL::BInitializeGraphics()
 void CGameEngineGL::AdjustViewport()
 {
 	SDL_GetWindowSize( m_window, &m_nWindowWidth, &m_nWindowHeight );
-	glBindFramebuffer(GL_FRAMEBUFFER, 0 );
+	// glBindFramebuffer(GL_FRAMEBUFFER, 0 ); /// <-- problematic
 
 	// Perspective
 	glMatrixMode(GL_PROJECTION);
