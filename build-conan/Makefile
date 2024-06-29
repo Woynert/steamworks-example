@@ -31,8 +31,12 @@ linux-package:
 	rm -r "$$TMPDIR"
 
 windows-package:
-	cd build/bin && 7z a -r windows.zip
-	mv build/bin/windows.zip .
+	TMPDIR=$$(mktemp -d) &&\
+	PROROOT=$$PWD &&\
+	cp build/bin/* "$$TMPDIR" &&\
+	cp -av deps/libs/* "$$TMPDIR" &&\
+	cd "$$TMPDIR" && 7z a -r "$$PROROOT/windows.zip" &&\
+	rm -r "$$TMPDIR"
 
 # Compatibility
 

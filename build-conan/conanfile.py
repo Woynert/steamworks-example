@@ -39,3 +39,7 @@ class CompressorRecipe(ConanFile):
             lib_pattern = "*.so*"
             for dep in deps_to_copy:
                 copy(self, lib_pattern, src=self.dependencies[dep].cpp_info.libdir, dst="libs")
+            return;
+        lib_pattern = "*.dll"
+        for dep in deps_to_copy:
+            copy(self, lib_pattern, src=self.dependencies[dep].cpp_info.bindir, dst="libs")
