@@ -18,7 +18,7 @@ jobs:
       - name: .conan cache
         uses: actions/cache@v4
         with:
-          path: "~/.conan2"
+          path: '~/.conan2'
           key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
 
       - name: setup tools
@@ -45,5 +45,56 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-package
-          path: "build-conan/linux.tar.gz"
+          path: 'build-conan/linux.tar.gz'
+          retention-days: 1
+
+  build-windows:
+    runs-on: 'windows-2022'
+    defaults:
+      run:
+        working-directory: './build-conan'
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      - name: .conan cache
+        uses: actions/cache@v4
+        with:
+          path: '~/.conan2'
+          key: host-${{ runner.os }}-${{ hashFiles('build-conan/conanfile.py') }}
+
+      - name: setup scoop tools
+        shell: pwsh
+        run: |
+          iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+          scoop install pkg-config make
+
+      - name: setup pipx tools
+        run: |
+          for p in meson ninja conan cmake; do pipx install $p; done
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # NOTE: get path with vswhere.exe
+      - name: setup conan
+        run: |
+          conan profile detect -f
+          make conaninstall
+
+      - name: build
+        run: |
+          make mesonsetup
+          make install
+
+      - name: package it
+        run: make windows-package
+
+      - name: upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-package
+          path: 'build-conan/windows.zip'
           retention-days: 1
