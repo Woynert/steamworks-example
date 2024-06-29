@@ -2,7 +2,7 @@
 default:
 
 clean:
-	\rm -rf deps build
+	rm -rf deps build
 
 conanexport:
 	# export custom recipes
@@ -22,7 +22,7 @@ conaninstallzig:
 
 mesonsetup:
 	# consume conan dependencies
-	meson setup --reconfigure --prefix=$(PWD)/build --native-file deps/conan_meson_native.ini build
+	meson setup --reconfigure --prefix=$(CURDIR)/build --native-file deps/conan_meson_native.ini build
 
 compile:
 	meson compile -C build
