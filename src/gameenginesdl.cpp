@@ -9,8 +9,10 @@
 
 #include <map>
 #include <queue>
+#ifdef POSIX
 #include <sys/time.h>
 #include <unistd.h>
+#endif // POSIX
 
 #include <GL/glew.h>
 
@@ -32,10 +34,12 @@ IGameEngine *CreateGameEngineSDL( )
 	return s_pGameEngine;
 }
 
+#ifdef POSIX
 void OutputDebugString( const char *pchMsg )
 {
 	fprintf( stderr, "%s", pchMsg );
 }
+#endif
 
 struct Packet_t
 {
@@ -382,7 +386,11 @@ bool CGameEngineGL::BSleepForFrameRateLimit( uint32 ulMaxFrameRate )
 		// If enough time is left sleep, otherwise just keep spinning so we don't go over the limit...
 		if ( flDesiredFrameMilliseconds - flMillisecondsElapsed > 3.0f )
 		{
+#ifdef POSIX
 			usleep( 5000 );
+#elif defined(WIN32)
+			Sleep( 2 );
+#endif 
 		}
 		else
 		{

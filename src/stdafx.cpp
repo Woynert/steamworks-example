@@ -12,7 +12,6 @@
 #include "stdafx.h"
 #include <stdio.h>
 #ifdef WIN32
-#include <varargs.h>
 #include <tchar.h>
 #endif
 

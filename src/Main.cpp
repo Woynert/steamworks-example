@@ -7,7 +7,7 @@
 #include "stdafx.h"
 #include "steam/steam_api.h"
 #ifdef WIN32
-#include <direct.h>
+#include <direct.h> // only for _getcwd
 #else
 #define MAX_PATH PATH_MAX
 #include <unistd.h>
@@ -15,10 +15,7 @@
 #define _snprintf snprintf
 #endif
 
-#if defined(WIN32)
-    #include "gameenginewin32.h"
-    #define atoll _atoi64
-#elif defined(OSX)
+#if defined(OSX)
 	#include "GameEngine.h"
 	extern IGameEngine *CreateGameEngineOSX();
 #elif defined(SDL)
@@ -237,9 +234,7 @@ static int RealMain( const char *pchCmdLine, HINSTANCE hInstance, int nCmdShow )
 	// Construct a new instance of the game engine 
 	// bugbug jmccaskey - make screen resolution dynamic, maybe take it on command line?
 	IGameEngine *pGameEngine =
-#if defined(_WIN32)
-		new CGameEngineWin32( hInstance, nCmdShow, 1024, 768 );
-#elif defined(OSX)
+#if defined(OSX)
 		CreateGameEngineOSX();
 #elif defined(SDL)
 		CreateGameEngineSDL( );
@@ -284,41 +279,6 @@ static int RealMain( const char *pchCmdLine, HINSTANCE hInstance, int nCmdShow )
 }
 #endif
 
-//-----------------------------------------------------------------------------
-// Purpose: Main entry point for the program -- win32
-//-----------------------------------------------------------------------------
-#ifdef WIN32
-int APIENTRY WinMain(HINSTANCE hInstance,
-					 HINSTANCE hPrevInstance,
-					 LPSTR     lpCmdLine,
-					 int       nCmdShow)
-{
-	// All we do here is call the real main function after setting up our se translator
-	// this allows us to catch exceptions and report errors to Steam.
-	//
-	// Note that you must set your compiler flags correctly to enable structured exception 
-	// handling in order for this particular setup method to work.
-
-	if ( IsDebuggerPresent() )
-	{
-		// We don't want to mask exceptions (or report them to Steam!) when debugging.
-		// If you would like to step through the exception handler, attach a debugger
-		// after running the game outside of the debugger.
-		return RealMain( lpCmdLine, hInstance, nCmdShow );
-	}
-
-	_set_se_translator( MiniDumpFunction );
-	try  // this try block allows the SE translator to work
-	{
-		return RealMain( lpCmdLine, hInstance, nCmdShow );
-	}
-	catch( ... )
-	{
-		return -1;
-	}
-}
-#endif
-
 #ifdef OSX
 int main(int argc, const char **argv)
 {
@@ -347,8 +307,7 @@ int main(int argc, const char **argv)
     
     return RealMain( szCmdLine, 0, 0 );
 }
-#endif
-#ifdef SDL
+#else
 int main(int argc, const char **argv)
 {
     char szCmdLine[1024];
