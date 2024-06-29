@@ -199,7 +199,7 @@ public:
 			if ( strlen( m_VecMenuItems[i].first.c_str() ) > 0 )
 			{
 				DWORD dwColor;
-				if ( i == m_uSelectedItem )
+				if ( i == (int32) m_uSelectedItem )
 				{
 					dwColor = D3DCOLOR_ARGB( 255, 25, 200, 25 );
 					sprintf_safe( rgchBuffer, "{ %s }", m_VecMenuItems[i].first.c_str() );

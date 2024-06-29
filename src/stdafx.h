@@ -15,87 +15,20 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-
-#define MAX(a,b)  (((a) > (b)) ? (a) : (b))
-#define MIN(a,b)  (((a) < (b)) ? (a) : (b))
-
-#ifdef WIN32
-
-// Modify the following defines if you have to target a platform prior to the ones specified below.
-// Refer to MSDN for the latest info on corresponding values for different platforms.
-// Allow use of features specific to Windows 8.1 or later.
-// Change this to the appropriate value to target other versions of Windows.
-#ifndef WINVER
-#define WINVER 0x0602
-#endif
-
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0602
-#endif
-
-#ifndef _WIN32_WINDOWS
-#define _WIN32_WINDOWS 0x0602
-#endif
-
-#ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
-#define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
-#endif
-
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-
-#pragma comment( lib, "d3d9.lib" )
-#pragma comment( lib, "d3dx9.lib" )
-#pragma comment( lib, "dxguid.lib" )
-
-// Windows Header Files:
-#include <windows.h>
-#include <tchar.h>
-
-// Winsock
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib" )
-
-// d3d header files
-#include "d3d9.h"
-#include "d3dx9.h"
-
-// XAudio2 header files
-#include <xaudio2.h>
-
-typedef __int16 int16;
-typedef unsigned __int16 uint16;
-typedef __int32 int32;
-typedef unsigned __int32 uint32;
-typedef __int64 int64;
-typedef unsigned __int64 uint64;
-
-#include "steam/isteamuserstats.h"
-#include "steam/isteamremotestorage.h"
-#include "steam/isteammatchmaking.h"
-#include "steam/steam_gameserver.h"
-
-#elif defined(POSIX)
-
 #include <limits.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
 
-	#if defined(_PS3)
+// steam api header file
+#include "steam/steam_api.h"
+#include "steam/isteamuserstats.h"
+#include "steam/isteamremotestorage.h"
+#include "steam/isteammatchmaking.h"
+#include "steam/steam_gameserver.h"
 
-	#include "stdafx_ps3.h"
-
-	#elif defined(OSX)
-	
-	#include <OpenGL/OpenGL.h>
-
-	#endif
-
-#define ARRAYSIZE(A) ( sizeof(A)/sizeof(A[0]) )
 // Need to define some types on POSIX
 typedef short int16;
 typedef unsigned short uint16;
@@ -103,9 +36,6 @@ typedef int int32;
 typedef unsigned int uint32;
 typedef long long int64;
 typedef unsigned long long uint64;
-typedef uint32 DWORD;
-typedef DWORD HWND;
-typedef DWORD HINSTANCE;
 typedef short SHORT;
 typedef long LONG;
 typedef unsigned char byte;
@@ -138,19 +68,96 @@ typedef unsigned char uint8;
 #define VK_SELECT         0x29
 #define VK_F5			  0x74
 
+#define MAX(a,b)  (((a) > (b)) ? (a) : (b))
+#define MIN(a,b)  (((a) < (b)) ? (a) : (b))
+
+#ifdef WIN32
+
+// Modify the following defines if you have to target a platform prior to the ones specified below.
+// Refer to MSDN for the latest info on corresponding values for different platforms.
+// Allow use of features specific to Windows 8.1 or later.
+// Change this to the appropriate value to target other versions of Windows.
+#ifndef WINVER
+#define WINVER 0x0602
+#endif
+
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0602
+#endif
+
+#ifndef _WIN32_WINDOWS
+#define _WIN32_WINDOWS 0x0602
+#endif
+
+#ifndef _WIN32_IE			// Allow use of features specific to IE 6.0 or later.
+#define _WIN32_IE 0x0600	// Change this to the appropriate value to target other versions of IE.
+#endif
+
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+
+// Windows Header Files:
+#include <windows.h>
+#include <tchar.h>
+
+// Winsock
+#include <winsock2.h>
+
+// XAudio2 header files
+#include <xaudio2.h>
+
+typedef __int16 int16;
+typedef unsigned __int16 uint16;
+typedef __int32 int32;
+typedef unsigned __int32 uint32;
+typedef __int64 int64;
+typedef unsigned __int64 uint64;
+
+#include "steam/isteamuserstats.h"
+#include "steam/isteamremotestorage.h"
+#include "steam/isteammatchmaking.h"
+#include "steam/steam_gameserver.h"
+
+#elif defined(POSIX)
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+	#if defined(_PS3)
+
+	#include "stdafx_ps3.h"
+
+	#elif defined(OSX)
+	
+	#include <OpenGL/OpenGL.h>
+
+	#endif
+
+extern void OutputDebugString( const char *pchMsg );
+extern int Alert( const char *lpCaption, const char *lpText );
+extern const char *GetUserSaveDataPath();
+
+#ifdef OSX
+extern uint64_t GetTickCount();
+#endif // OSX
+
+#define ARRAYSIZE(A) ( sizeof(A)/sizeof(A[0]) )
+typedef uint32 DWORD;
+typedef DWORD HWND;
+typedef DWORD HINSTANCE;
+
 #ifndef VALVE_RECT_DEFINED
 #define VALVE_RECT_DEFINED
-
-	typedef struct tagRECT
-	{
-		LONG    left;
-		LONG    top;
-		LONG    right;
-		LONG    bottom;
-	} RECT;
+    typedef struct tagRECT
+    {
+        LONG    left;
+        LONG    top;
+        LONG    right;
+        LONG    bottom;
+    } RECT;
 
 	#define _RECT tagRECT
 #endif
+#endif // POSIX
 
 #define D3DCOLOR_ARGB(a,r,g,b) \
 	((DWORD)((((a)&0xff)<<24)|(((r)&0xff)<<16)|(((g)&0xff)<<8)|((b)&0xff)))
@@ -176,25 +183,7 @@ typedef unsigned char uint8;
 
 #define DWRGBA_TO_DWARGB(color) \
 	((DWORD)(( (((((color))&0xff))<<24)|(((((color>>24))&0xff))<<16)|(((color>>16)&0xff)<<8)|((color)>>8)&0xff)))
-
-// steam api header file
-#include "steam/steam_api.h"
-#include "steam/isteamuserstats.h"
-#include "steam/isteamremotestorage.h"
-#include "steam/isteammatchmaking.h"
-#include "steam/steam_gameserver.h"
-
-extern void OutputDebugString( const char *pchMsg );
-extern int Alert( const char *lpCaption, const char *lpText );
-extern const char *GetUserSaveDataPath();
-
-#ifdef OSX
-extern uint64_t GetTickCount();
-#endif // OSX
-
 #define V_ARRAYSIZE(a) sizeof(a)/sizeof(a[0]) 
-
-#endif	// POSIX
 
 // OUT_Z_ARRAY indicates an output array that will be null-terminated.
 #if _MSC_VER >= 1600
@@ -247,4 +236,3 @@ inline void strncpy_safe( char *pDest, char const *pSrc, size_t maxLen )
 #define Steamworks_TestSecret()
 #define Steamworks_SelfCheck()
 #endif
-

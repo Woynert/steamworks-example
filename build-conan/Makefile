@@ -2,36 +2,24 @@
 default:
 
 clean:
-	\rm -rf deps build
+	rm -rf deps build
 
 conanexport:
-	# export custom recipes
 	conan export conan-recipes/libglvnd/system --version system --user customwoy
 	conan export conan-recipes/xorg/all --version system --user customwoy
 	conan export conan-recipes/sdl/all --version 2.30.3 --user customwoy
 
 conaninstall:
-	# build deps and export consumable build files
 	conan install . --output-folder=deps --build=missing
 
-conaninstallnix:
-	conan install . --output-folder=deps --build=missing -pr:a=conan-profiles/nixprofile
-
-conaninstallzig:
-	conan install . --output-folder=deps --build=missing -pr:a=conan-profiles/zigprofile -vvv
-
 mesonsetup:
-	# consume conan dependencies
-	meson setup --reconfigure --prefix=$(PWD)/build --native-file deps/conan_meson_native.ini build
+	meson setup --reconfigure --prefix=$(CURDIR)/build --native-file deps/conan_meson_native.ini build
 
 compile:
 	meson compile -C build
 
 install:
 	meson install -C build
-
-conanrun:
-	. ./deps/conanrun.sh; cd build && ./example
 
 linux-package:
 	TMPDIR=$$(mktemp -d) &&\
@@ -42,7 +30,25 @@ linux-package:
 	cd "$$TMPDIR" && tar -czvf "$$PROROOT/linux.tar.gz" * &&\
 	rm -r "$$TMPDIR"
 
+windows-package:
+	cd build/bin && 7z a -r windows.zip
+	mv build/bin/windows.zip .
+
+# Compatibility
+
+conaninstallnix:
+	conan install . --output-folder=deps --build=missing -pr:a=conan-profiles/nixprofile
+
+conaninstallzig:
+	conan install . --output-folder=deps --build=missing -pr:a=conan-profiles/zigprofile -vvv
+
+mesonsetupvs:
+	meson setup --reconfigure --prefix=$(CURDIR)/build --native-file deps/conan_meson_native.ini build --vsenv
+
 # Debugging
+
+conanrun:
+	. ./deps/conanrun.sh; cd build && ./example
 
 rebuildSdl:
 	./conan-recipes/update-recipes.sh

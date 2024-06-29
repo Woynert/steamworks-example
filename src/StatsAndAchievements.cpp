@@ -32,10 +32,10 @@ Achievement_t g_rgAchievements[] =
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
 //-----------------------------------------------------------------------------
-#pragma warning( push )
+// #pragma warning( push )
 //  warning C4355: 'this' : used in base member initializer list
 //  This is OK because it's warning on setting up the Steam callbacks, they won't use this until after construction is done
-#pragma warning( disable : 4355 ) 
+// #pragma warning( disable : 4355 ) 
 CStatsAndAchievements::CStatsAndAchievements( IGameEngine *pGameEngine )
 	: 
 	m_pGameEngine( pGameEngine ),
@@ -71,7 +71,7 @@ CStatsAndAchievements::CStatsAndAchievements( IGameEngine *pGameEngine )
 	m_bInstalledPS3Trophies = false;
 	m_bStartedPS3TrophyInstall = false;
 }
-#pragma warning( pop )
+// #pragma warning( pop )
 
 //-----------------------------------------------------------------------------
 // Purpose: Run a frame for the CStatsAndAchievements. does not need to run at

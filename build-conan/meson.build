@@ -50,24 +50,47 @@ openal_dep = dependency('openal')
 
 # steamworks sdk library
 
-sdk_relative = '../steamworkslib'
-sdk_path = join_paths(meson.current_source_dir(), sdk_relative)
+if host_machine.system() == 'windows'
+  sdk_os = 'win64'
+  sdk_lib_steam = 'steam_api64'
+  sdk_lib_ticket = 'sdkencryptedappticket64'
+  sdk_lib_steam_obj = 'steam_api64.dll'
+  sdk_lib_ticket_obj = 'sdkencryptedappticket64.dll'
+else
+  sdk_os = 'linux64'
+  sdk_lib_steam = 'steam_api'
+  sdk_lib_ticket = 'sdkencryptedappticket'
+  sdk_lib_steam_obj = 'libsteam_api.so'
+  sdk_lib_ticket_obj = 'libsdkencryptedappticket.so'
+endif
+sdk_relative_path = '../steamworkslib'
+sdk_path = join_paths(meson.current_source_dir(), sdk_relative_path)
+
 steamworks_dep = declare_dependency(
   link_args : [
-    '-L' + join_paths(sdk_path, 'redistributable_bin/linux64'),
-    '-L' + join_paths(sdk_path, 'public/steam/lib/linux64'),
-    '-l' + 'steam_api',
-    '-l' + 'sdkencryptedappticket',
+    '-L' + join_paths(sdk_path, 'redistributable_bin', sdk_os),
+    '-L' + join_paths(sdk_path, 'public/steam/lib', sdk_os),
+    '-l' + sdk_lib_steam,
+    '-l' + sdk_lib_ticket,
   ],
-  include_directories : include_directories(join_paths(sdk_relative, 'public')))
+  include_directories : include_directories(join_paths(sdk_relative_path, 'public')))
 
-install_data(join_paths(sdk_path, 'redistributable_bin/linux64/libsteam_api.so'), install_dir: get_option('bindir'))
-install_data(join_paths(sdk_path, 'public/steam/lib/linux64/libsdkencryptedappticket.so'), install_dir: get_option('bindir'))
+install_data(join_paths(sdk_path, 'redistributable_bin', sdk_os, sdk_lib_steam_obj), install_dir: get_option('bindir'))
+install_data(join_paths(sdk_path, 'public/steam/lib', sdk_os, sdk_lib_ticket_obj), install_dir: get_option('bindir'))
 
 # assets
 
 install_data(join_paths(src_path, 'DejaVuSans.ttf'), install_dir: get_option('bindir'))
 install_data(join_paths(src_path, 'steam_appid.txt'), install_dir: get_option('bindir'))
+
+# compiler specific flags
+
+compiler = meson.get_compiler('cpp').get_id()
+if compiler == 'msvc'
+  extra_args = ['-DWIN32', '/wd4828']
+else # gcc, clang
+  extra_args = ['-DPOSIX', '-g', '-Wno-invalid-offsetof']
+endif
 
 executable(
   'example', source_files,
@@ -79,13 +102,8 @@ executable(
     steamworks_dep,
   ],
   cpp_args : [
-    #'-std=c++0x',
-    '-Wno-invalid-offsetof',
-    '-DPOSIX',
     '-DSDL',
-    # For Zig compatibiliy: https://github.com/ziglang/zig/issues/5163
-    # TODO: Research more on this
-    '-fno-sanitize=all', 
+    extra_args
   ],
   build_rpath: '$ORIGIN',
   install_rpath: '$ORIGIN',
