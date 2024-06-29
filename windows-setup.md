@@ -1,67 +1,83 @@
-# Setup Windows development machine from Linux
+# Windows Setup
 
-## Install Windows VM
+Develop on Linux using a Windows VM, it also works for native windows, just skip this "Setup Host" section.
+
+## Setup Host
+
+### Install Windows VM
 
 * `quickget windows 10`
     * (NixOS) `nix-shell -p quickemu`
-    * The ISO download will probably fail to download it from the browser with the link quickget gives you
-    * Get the link from Opera VPN if microsoft doesn't allow you to download the ISO in your computer
-    * Rename the iso in windows-10.conf
-    * Run with: `quickemu --vm windows-10.conf`
-* Disable 'python marketplace' shortcut from Settings > Manage App Execution Aliases
+    * The ISO download will probably fail to download because Microsoft bans your IP for using CLI, so download on the browser using a VPN (like Opera VPN)
+    * Place the iso and rename it in windows-10.conf
+    * Test with: `quickemu --vm windows-10.conf`
+* Disable "python marketplace" shortcut from Settings > Manage App Execution Aliases
 
 ### File sharing
 
-* Requires samba installed
-    * (NixOS) `nix-shell -p samba`
-* (NixOS) workaround for old quickemu versions (no /usr/sbin/smbd found)
-    * `for f in /nix/store/f18n13k3fm7cqpqnaqf8jv282h9i0q36-samba-4.19.2/bin/*; do sudo ln -s $f /usr/sbin/.; done`
-* Run with: `quickemu --vm windows-10.conf --public-dir /plan/2-dev/worklocal/steamworks/`
+* Requires samba installed. NixOS: `nix-shell -p samba`
+    * (Only NixOS) workaround for old quickemu versions (no /usr/sbin/smbd found)
+        `for f in /nix/store/f18n13k3fm7cqpqnaqf8jv282h9i0q36-samba-4.19.2/bin/*; do sudo ln -s $f /usr/sbin/.; done`
+* Test with: `quickemu --vm windows-10.conf --public-dir /plan/2-dev/worklocal/steamworks/`
 * Add network location [see quickemu wiki advanced](https://github.com/quickemu-project/quickemu/wiki/05-Advanced-quickemu-configuration#samba)
 
     > If using a Windows guest, right-click on "This PC", click "Add a network location", and paste this address, removing smb: and replacing forward slashes with backslashes (in this example \\10.0.2.4\qemu)
 
-## SSH Shell
+### SSH Shell
 
-* Inside the windows vm open an admin powershell
-* Check and enable the ssh service:
+* Inside the Windows VM open an admin Powershell
+* Check and enable the SSH service:
     ```
     Get-WindowsCapability -Online | ? Name -like 'OpenSSH*'
     Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
     ```
-* Start the ssh service:
+* Start the SSH service:
     ```
     Start-Service sshd
     Get-Service sshd
     Set-Service -Name sshd -StartupType 'Automatic' # start on boot
     ```
 
-## Setup tools
+## Setup Development Environment
+
+### CLI tools
 
 * Install scoop
-    ```
+    ```powershell
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
     iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
     ```
 * Install tools
+    ```cmd
+    scoop install git python pipx pkg-config make # extras: lf cwrsync
     ```
-    scoop install pipx # extras: git lf pkg-config cwrsync
-    # (run next command inside bash)
+    ```bash
     for p in meson ninja conan cmake; do pipx install $p; done
-    pacman -Ss mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-make make rsync bison mingw-w64-clang-x86_64-autotools
-    pacman -Ss rsync # convenience
-
-    # Two makes?
-    # TODO: decide on ONE pkg manager
     ```
     * git includes *bash* from msys2 which uses mingw64
+    * If "C:\Users\Quickemu\.local\bin" is not on your PATH. Run `pipx ensurepath` to update.
+
+### MSVC Compiler
+
+* Get VS tool: `curl -L -o vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe`
+
+* (optional) Open vs_buildtools.exe and delete all previous instalations, otherwise you'll have to specify a different path (maybe --force could help here?)
+
+* Install MSVC toolchain (cmd.exe): `start /w vs_buildtools.exe --passive --wait --norestart --installPath C:\Users\Quickemu\dev\msvc --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.20348` Use --quiet instead of --passive for no GUI. Be mindful that this tool is very slow, it might hang for a while without using resources before exitting. [See Microsoft workaround for containers.](https://learn.microsoft.com/en-us/visualstudio/install/build-tools-container)
+
+* Enter cmd dev shell
+    * (cmd.exe): `C:\Users\Quickemu\dev\msvc\Common7\Tools\VsDevCmd.bat -arch=amd64 && cmd.exe`
+    * (bash): `cmd.exe '\/C' 'C:\Users\Quickemu\dev\msvc\Common7\Tools\VsDevCmd.bat -arch=amd64 && cmd.exe'`
 
 ## Workflow
 
-* Login with: `ssh quickemu@localhost -p 22220` password is `quickemu`
-* After login start `clang64`
-* Enter shared folder with `cd '\\10.0.2.4\qemu'`
-* Sync files with rsycn `sh -c 'cd $HOME && rsync -av //10.0.2.4/qemu/repo-actions/ dev/clones/clone1'` (workaround rsync not supporting windows absolute paths)
+* Start VM with file sharing: `quickemu --vm windows-10.conf --public-dir /plan/2-dev/worklocal/steamworks/`
+* Login with: `ssh quickemu@localhost -p 22220` password `quickemu`
+* Start bash `bash`
+* Sync source files with rsync
+    * (cmd.exe) `sh -c 'cd $HOME && rsync -av //10.0.2.4/qemu/repo-actions/ dev/clones/clone1'` (workaround rsync not supporting windows absolute paths)
+    * (bash) `sh -c 'cd $HOME && rsync -av //10.0.2.4/qemu/repo-actions/{.*,*} dev/clones/clone1/'`
+* Edit source on linux, sync on windows, compile/run
 
 # Troubleshoting / Notes
 
@@ -79,7 +95,9 @@ Tried on `Windows 10 22H2 19045.2965`, Extracted from:
 - https://gist.github.com/KINGSABRI/70c304e55a588c556b373e4c7a1e32d5
 - https://gist.github.com/mikebranstein/7e9169000a6555c195043e1755fbee7e
 
-```
+Run on Powershell:
+
+```powershell
 # Disabel Windows update ScheduledTask
 Get-ScheduledTask -TaskPath "\Microsoft\Windows\WindowsUpdate\" | Disable-ScheduledTask
 
@@ -105,18 +123,13 @@ sc.exe query wuauserv | findstr "STATE"
 REG.exe QUERY HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\wuauserv /v Start
 ```
 
-## Some files for the conan patch
+## MinGW (WIP)
 
-vim "C:\Users\Quickemu\pipx\venvs\conan\Lib\site-packages\conans\model\conan_file.py"
-vim "C:\Users\Quickemu\pipx\venvs\conan\Lib\site-packages\conans\util\runners.py"
-vim 'C:\Users\Quickemu\pipx\venvs\conan\Lib\site-packages\conans\client\subsystems.py'
+For MinGW to be able to compile libiconv conan must be patched: [add proper patch]
 
-## Setup MSVC
+```
+# C:\Users\Quickemu\pipx\venvs\conan\Lib\site-packages\conans\client\subsystems.py@53
+if active and python_will_run_bash:
+    wrapped_cmd = environment_wrap_command(envfiles, envfiles_folder, command)
+```
 
-* Get VS tool: `curl -L -o vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe`
-
-* (optional) Open vs_buildtools.exe and delete all previous instalations, otherwise you'll have to specify a different path (maybe --force could help here?)
-
-* Install MSVC toolchain (cmd.exe): `start /w vs_buildtools.exe --passive --wait --norestart --installPath C:\Users\Quickemu\dev\nana --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.20348` Use --quiet instead of --passive for no GUI.
-
-* Enter cmd dev shell (cmd.exe): `C:\Users\Quickemu\dev\nana\Common7\Tools\VsDevCmd.bat && cmd.exe`
