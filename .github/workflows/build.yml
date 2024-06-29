@@ -70,10 +70,13 @@ jobs:
       - name: install scoop
         shell: pwsh
         run: iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+
       - name: setup scoop tools
         run: |
           "$HOME/scoop/shims/scoop" install pkg-config make
           echo 'C:\\Users\runneradmin\scoop\shims' >> "$GITHUB_PATH"
+          # export win path for cmd.exe shell (msvc)
+
       - name: setup pipx tools
         run: for p in meson ninja conan; do pipx install $p; done
 
