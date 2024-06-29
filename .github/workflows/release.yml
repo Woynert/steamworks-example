@@ -29,6 +29,8 @@ jobs:
         run: echo "tag=$(./usr/local/bin/convco version --bump)" | tee "$GITHUB_OUTPUT"
 
   build:
+    needs:
+      - tagging
     uses: './.github/workflows/build.yml'
 
   release:
