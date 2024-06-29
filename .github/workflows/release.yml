@@ -51,4 +51,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.tagging.outputs.tag }}
-        run: gh release create "$TAG" -t "Release $TAG" ./linux-package/linux.tar.gz
+        run: |
+          gh release create "$TAG" -t "Release $TAG" \
+          ./linux-package/linux.tar.gz \
+          ./windows-package/windows.zip
