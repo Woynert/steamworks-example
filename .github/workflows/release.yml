@@ -26,7 +26,7 @@ jobs:
           dpkg-deb -x convco_0.5.1-1_amd64.deb .
       - name: bump version
         id: bump
-        run: echo "tag=$(./usr/local/bin/convco version --bump)" | tee "$GITHUB_OUTPUT"
+        run: echo "tag=$(./usr/local/bin/convco version --bump -p '')" | tee "$GITHUB_OUTPUT"
 
   build:
     needs:
